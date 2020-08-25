@@ -1,6 +1,7 @@
 FROM golang:1.14
 
-RUN go get -u github.com/beego/bee
+RUN go get -u github.com/go-sql-driver/mysql
+RUN go get - u github.com/go-telegram-bot-api/telegram-bot-api
 
 ENV GO111MODULE=on
 ENV GOFLAGS=-mod=vendor
