@@ -51,9 +51,15 @@ var ctg string
 
 func main() {
 
-	//create table
+	//create tables
 	db := dbConn()
 	statement, err := db.Prepare("CREATE TABLE IF NOT EXISTS usenmesgs (id INTEGER AUTO_INCREMENT PRIMARY KEY, message TEXT, category TEXT)")
+	if err != nil {
+		fmt.Println(err)
+	}
+	statement.Exec()
+
+	statement, err = db.Prepare("CREATE TABLE IF NOT EXISTS lastmesgs (id INTEGER AUTO_INCREMENT PRIMARY KEY, message TEXT)")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -109,18 +115,31 @@ func main() {
 			if len(ms) > 0 {
 				index := rand.Intn(len(ms))
 				fmt.Println(ms[index])
+
+			
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, ms[index])
 				bot.Send(msg)
-				db.Close()
+
+		
+				
 			}
+		} else if update.Message.IsCommand() == false {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Я не прочь поболтать, но я простой бот, и пока не умею так!\nНо @usorohpaius всегда рад сообщениям!")
+			bot.Send(msg)
 		}
 
 		if update.Message.IsCommand() {
 			switch update.Message.Command() {
 			case "start":
+				username := update.Message.From.UserName
+				if username == "dinadinus" || username == "usorohpaius" {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Привет, Дина!\nПро что ты хочешь комплимент?")
 				msg.ReplyMarkup = buttons
 				bot.Send(msg)
+				} else {
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Прости! Этот бот только для Динуса.\nА тебе хорошего дня!")
+					bot.Send(msg)
+				}
 			case "insert":
 				db := dbConn()
 				message := strings.Split(update.Message.Text, "/insert")
